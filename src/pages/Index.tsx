@@ -19,6 +19,8 @@ const CATEGORIES = [
   'Corporate Staff'
 ];
 
+const NC_ALLOWED_NAMES = ['Allen', 'Jenny', 'Glenda', 'Paul', 'Peter', 'Kristen'];
+
 const Index = () => {
   const [organizedData, setOrganizedData] = useState<{ [key: string]: any[] }>({});
 
@@ -43,8 +45,17 @@ const Index = () => {
       if (categoryMatch) {
         currentCategory = categoryMatch;
       } else if (currentCategory && Object.values(row).some(value => value)) {
-        // If we have a current category and the row isn't empty, add it to that category
-        categorized[currentCategory].push(row);
+        // If we have a current category and the row isn't empty
+        if (currentCategory === 'NC') {
+          // For NC category, only include rows where the first name matches our allowed list
+          const firstName = String(Object.values(row)[5] || '').trim(); // Index 5 contains First Name
+          if (NC_ALLOWED_NAMES.includes(firstName)) {
+            categorized[currentCategory].push(row);
+          }
+        } else {
+          // For other categories, include all non-empty rows
+          categorized[currentCategory].push(row);
+        }
       }
     });
 
