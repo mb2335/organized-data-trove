@@ -38,20 +38,21 @@ const Index = () => {
     const categorized: { [key: string]: ExcelRow[] } = {};
     
     relevantData.forEach((row) => {
-      // Get only columns E through O
+      // Get only the type (column E), first name (column F), and last name (column G)
       const filteredRow: ExcelRow = {};
       Object.entries(row).forEach(([key, value]) => {
-        // Excel columns are labeled A, B, C, etc.
-        // We want columns E through O (indices 4-14)
         const colIndex = key.charCodeAt(0) - 65; // Convert A=0, B=1, etc.
-        if (colIndex >= 4 && colIndex <= 14) {
-          filteredRow[key] = value;
+        if (colIndex >= 4 && colIndex <= 6) { // Columns E, F, G
+          const columnName = colIndex === 4 ? 'Type' : 
+                           colIndex === 5 ? 'First Name' : 
+                           'Last Name';
+          filteredRow[columnName] = value;
         }
       });
 
       // Check if the row is a category header
       const isCategory = CATEGORIES.some(category => 
-        Object.values(filteredRow).some(value => 
+        Object.values(row).some(value => 
           String(value).trim() === category
         )
       );
@@ -59,7 +60,7 @@ const Index = () => {
       if (isCategory) {
         // Set current category based on the matching category
         currentCategory = CATEGORIES.find(category => 
-          Object.values(filteredRow).some(value => 
+          Object.values(row).some(value => 
             String(value).trim() === category
           )
         ) || '';
@@ -67,8 +68,10 @@ const Index = () => {
           categorized[currentCategory] = [];
         }
       } else if (currentCategory && Object.keys(filteredRow).length > 0) {
-        // Add the filtered row to the current category
-        categorized[currentCategory].push(filteredRow);
+        // Add the filtered row to the current category if it has any data
+        if (Object.values(filteredRow).some(value => value !== undefined && value !== '')) {
+          categorized[currentCategory].push(filteredRow);
+        }
       }
     });
 
