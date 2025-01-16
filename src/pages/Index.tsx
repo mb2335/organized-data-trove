@@ -34,7 +34,7 @@ const Index = () => {
     });
 
     // Process each row
-    data.forEach(row => {
+    data.forEach((row, index) => {
       // Check if this row contains a category
       const categoryMatch = CATEGORIES.find(category => 
         Object.values(row).some(value => 
@@ -44,11 +44,18 @@ const Index = () => {
 
       if (categoryMatch) {
         currentCategory = categoryMatch;
+        console.log(`Found category: ${currentCategory}`);
       } else if (currentCategory && Object.values(row).some(value => value)) {
         // If we have a current category and the row isn't empty
         if (currentCategory === 'NC') {
           // For NC category, only include rows where the first name matches our allowed list
-          const firstName = String(Object.values(row)[5] || '').trim(); // Index 5 contains First Name
+          const rowValues = Object.values(row);
+          console.log('NC row:', row);
+          console.log('Row values:', rowValues);
+          const firstName = String(rowValues[5] || '').trim(); // Index 5 contains First Name
+          console.log('First Name found:', firstName);
+          console.log('Is in allowed list:', NC_ALLOWED_NAMES.includes(firstName));
+          
           if (NC_ALLOWED_NAMES.includes(firstName)) {
             categorized[currentCategory].push(row);
           }
@@ -59,6 +66,7 @@ const Index = () => {
       }
     });
 
+    console.log('Final categorized data:', categorized);
     setOrganizedData(categorized);
   };
 
