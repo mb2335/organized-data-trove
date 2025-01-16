@@ -24,6 +24,15 @@ const DataSection = ({ category, data }: DataSectionProps) => {
 
   if (!data.length) return null;
 
+  const filterColumns = (row: any) => {
+    const values = Object.values(row);
+    // Only return columns E through P (indices 4 through 15)
+    return values.slice(4, 16);
+  };
+
+  // Get headers from first row (columns E through P)
+  const headers = Object.values(data[0] || {}).slice(4, 16);
+
   return (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value={category}>
@@ -49,8 +58,8 @@ const DataSection = ({ category, data }: DataSectionProps) => {
             <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  {Object.keys(data[0] || {}).map((header) => (
-                    <th key={header} className="p-2 text-left border-b bg-gray-50">
+                  {headers.map((header, index) => (
+                    <th key={index} className="p-2 text-left border-b bg-gray-50">
                       {header}
                     </th>
                   ))}
@@ -59,7 +68,7 @@ const DataSection = ({ category, data }: DataSectionProps) => {
               <tbody>
                 {data.map((row, index) => (
                   <tr key={index} className="border-b hover:bg-gray-50">
-                    {Object.values(row).map((cell: any, cellIndex) => (
+                    {filterColumns(row).map((cell: any, cellIndex) => (
                       <td key={cellIndex} className="p-2">
                         {cell}
                       </td>
