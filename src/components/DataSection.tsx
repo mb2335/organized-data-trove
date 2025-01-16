@@ -24,14 +24,36 @@ const DataSection = ({ category, data }: DataSectionProps) => {
 
   if (!data.length) return null;
 
-  const filterColumns = (row: any) => {
-    const values = Object.values(row);
-    // Only return columns E through P (indices 4 through 15)
-    return values.slice(4, 16);
-  };
+  // Define the specific columns we want to display
+  const columns = [
+    'Type',
+    'First Name',
+    'Last Name',
+    'Company',
+    'Business Type',
+    'Area',
+    'Start Date',
+    'Notes',
+    'Email',
+    'Cell'
+  ];
 
-  // Get headers from first row (columns E through P)
-  const headers = Object.values(data[0] || {}).slice(4, 16);
+  // Get the values for each row based on our column mapping
+  const getRowValues = (row: any) => {
+    const values = Object.values(row);
+    return [
+      values[4] || '', // Type
+      values[5] || '', // First Name
+      values[6] || '', // Last Name
+      values[7] || '', // Company
+      values[8] || '', // Business Type
+      values[9] || '', // Area
+      values[10] || '', // Start Date
+      values[11] || '', // Notes
+      values[12] || '', // Email
+      values[13] || '', // Cell
+    ];
+  };
 
   return (
     <Accordion type="single" collapsible className="w-full">
@@ -58,9 +80,9 @@ const DataSection = ({ category, data }: DataSectionProps) => {
             <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  {headers.map((header, index) => (
+                  {columns.map((header, index) => (
                     <th key={index} className="p-2 text-left border-b bg-gray-50">
-                      {String(header)}
+                      {header}
                     </th>
                   ))}
                 </tr>
@@ -68,7 +90,7 @@ const DataSection = ({ category, data }: DataSectionProps) => {
               <tbody>
                 {data.map((row, index) => (
                   <tr key={index} className="border-b hover:bg-gray-50">
-                    {filterColumns(row).map((cell: any, cellIndex) => (
+                    {getRowValues(row).map((cell, cellIndex) => (
                       <td key={cellIndex} className="p-2">
                         {String(cell)}
                       </td>
