@@ -23,29 +23,47 @@ const Index = () => {
   const [organizedData, setOrganizedData] = useState<{ [key: string]: any[] }>({});
 
   const handleFileProcessed = (data: any[]) => {
-    // Filter rows between rows 28-146 and identify categories by black highlighting
     const relevantData = data.slice(27, 146);
     
     let currentCategory = '';
     const categorized: { [key: string]: any[] } = {};
     
-    relevantData.forEach((row, index) => {
-      // Check if the row is a category header (has black highlighting)
-      const isCategory = row?.['!styles']?.fill?.fgColor?.rgb === '000000' || 
-                        CATEGORIES.includes(Object.values(row)[0]);
+    relevantData.forEach((row) => {
+      const rowValues = Object.values(row);
+      const firstValue = String(rowValues[0] || '');
       
-      if (isCategory) {
-        // Set current category based on the first non-empty value in the row
-        currentCategory = Object.values(row).find(val => val) || '';
+      // Check if this row is a category header
+      if (CATEGORIES.includes(firstValue)) {
+        currentCategory = firstValue;
         if (!categorized[currentCategory]) {
           categorized[currentCategory] = [];
         }
       } else if (currentCategory) {
-        // Add the row to the current category, preserving empty cells
-        categorized[currentCategory].push(row);
+        // Check if the first value looks like a type (Alcohol/Entertainment, Full Service, Lodging, QSR)
+        const isType = /^(Alcohol\/Entertainment|Full Service|Lodging|QSR|ADD|Y)$/i.test(firstValue);
+        
+        let formattedRow;
+        if (isType) {
+          formattedRow = {
+            'Type': String(rowValues[0] || ''),
+            'First Name': String(rowValues[1] || ''),
+            'Last Name': String(rowValues[2] || '')
+          };
+        } else {
+          // If it's not a type, treat it as a name
+          formattedRow = {
+            'Type': '',
+            'First Name': String(rowValues[0] || ''),
+            'Last Name': String(rowValues[1] || '')
+          };
+        }
+        
+        // Add the row even if some values are blank
+        categorized[currentCategory].push(formattedRow);
       }
     });
 
+    console.log('Categorized data:', categorized);
     setOrganizedData(categorized);
   };
 
