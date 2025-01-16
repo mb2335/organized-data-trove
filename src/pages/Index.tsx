@@ -20,41 +20,55 @@ const CATEGORIES = [
 ];
 
 interface ExcelRow {
-  [key: string]: string | number | null;
-  '!styles'?: {
-    fill?: {
-      fgColor?: {
-        rgb?: string;
-      };
-    };
-  };
+  [key: string]: any;
+  __rowNum__?: number;
 }
 
 const Index = () => {
   const [organizedData, setOrganizedData] = useState<{ [key: string]: ExcelRow[] }>({});
 
   const handleFileProcessed = (data: ExcelRow[]) => {
-    // Filter rows between rows 28-146 and identify categories by black highlighting
-    const relevantData = data.slice(27, 146);
+    // Filter rows between rows 28-146
+    const relevantData = data.filter(row => {
+      const rowNum = row.__rowNum__;
+      return rowNum !== undefined && rowNum >= 27 && rowNum <= 145;
+    });
     
     let currentCategory = '';
     const categorized: { [key: string]: ExcelRow[] } = {};
     
     relevantData.forEach((row) => {
-      // Check if the row is a category header (has black highlighting)
-      const isCategory = row?.['!styles']?.fill?.fgColor?.rgb === '000000' || 
-                        CATEGORIES.includes(String(Object.values(row)[0]));
+      // Get only columns E through O
+      const filteredRow: ExcelRow = {};
+      Object.entries(row).forEach(([key, value]) => {
+        // Excel columns are labeled A, B, C, etc.
+        // We want columns E through O (indices 4-14)
+        const colIndex = key.charCodeAt(0) - 65; // Convert A=0, B=1, etc.
+        if (colIndex >= 4 && colIndex <= 14) {
+          filteredRow[key] = value;
+        }
+      });
+
+      // Check if the row is a category header
+      const isCategory = CATEGORIES.some(category => 
+        Object.values(filteredRow).some(value => 
+          String(value).trim() === category
+        )
+      );
       
       if (isCategory) {
-        // Set current category based on the first non-empty value in the row
-        const categoryValue = Object.values(row).find(val => val) || '';
-        currentCategory = String(categoryValue);
+        // Set current category based on the matching category
+        currentCategory = CATEGORIES.find(category => 
+          Object.values(filteredRow).some(value => 
+            String(value).trim() === category
+          )
+        ) || '';
         if (!categorized[currentCategory]) {
           categorized[currentCategory] = [];
         }
-      } else if (currentCategory) {
-        // Add the row to the current category, preserving empty cells
-        categorized[currentCategory].push(row);
+      } else if (currentCategory && Object.keys(filteredRow).length > 0) {
+        // Add the filtered row to the current category
+        categorized[currentCategory].push(filteredRow);
       }
     });
 
