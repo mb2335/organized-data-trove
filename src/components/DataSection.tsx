@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Download, Copy } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface DataSectionProps {
   category: string;
@@ -47,14 +47,22 @@ const DataSection = ({ category, data }: DataSectionProps) => {
     });
   };
 
-  if (!data.length) return null;
+  // Filter out specific rows for Corporate Staff
+  const filteredData = category === 'Corporate Staff' 
+    ? data.filter(row => row['First Name'] !== 'Positions' && 
+                        row['First Name'] !== '7' && 
+                        row['First Name'] !== 'First Name ' &&
+                        row['First Name'] !== 'All curent Executive Committee members')
+    : data;
+
+  if (!filteredData.length) return null;
 
   return (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value={category}>
         <div className="flex items-center justify-between">
           <AccordionTrigger className="text-lg font-semibold">
-            {category} ({data.length} items)
+            {category} ({filteredData.length} items)
           </AccordionTrigger>
           <div className="flex gap-2 mr-4">
             <Button
@@ -92,15 +100,20 @@ const DataSection = ({ category, data }: DataSectionProps) => {
                 </tr>
               </thead>
               <tbody>
-                {data.map((row, index) => {
+                {filteredData.map((row, index) => {
                   // Determine if row should be faded based on First Name
                   const shouldFade = !row['First Name'] || 
-                    ['Alcohol/Entertainment', 'Full Service', 'Lodging', 'Y', 'y'].includes(row['First Name']);
+                    ['Alcohol/Entertainment', 'Full Service', 'Lodging', 'QSR'].includes(row['First Name']);
+                  
+                  // Check for suspicious data (single character in any field)
+                  const isSuspicious = [row.Type, row['First Name'], row['Last Name']].some(
+                    field => field && field.length === 1
+                  );
                   
                   return (
                     <tr 
                       key={index} 
-                      className={`border-b hover:bg-gray-50 ${shouldFade ? 'opacity-50' : ''}`}
+                      className={`border-b hover:bg-gray-50 ${shouldFade ? 'opacity-50' : ''} ${isSuspicious ? 'bg-yellow-100' : ''}`}
                     >
                       <td className="p-2">{row.Type === 'ADD' ? '' : row.Type}</td>
                       <td className="p-2">{row['First Name']}</td>
