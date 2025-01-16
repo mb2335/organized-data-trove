@@ -45,7 +45,7 @@ const Index = () => {
 
       if (categoryMatch) {
         currentCategory = categoryMatch;
-      } else if (currentCategory && Object.values(row).some(value => value)) {
+      } else if (currentCategory) {
         // For NC category, only include rows with allowed names
         if (currentCategory === 'NC') {
           const firstName = row['Replace/Open'];
@@ -53,7 +53,8 @@ const Index = () => {
             categorized[currentCategory].push(row);
           }
         } else {
-          // For other categories, include all non-empty rows
+          // For other categories, include all rows, even if they're blank
+          // As long as we're within a category section
           categorized[currentCategory].push(row);
         }
       }
