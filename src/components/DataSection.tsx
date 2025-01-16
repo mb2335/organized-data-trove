@@ -22,7 +22,15 @@ const DataSection = ({ category, data }: DataSectionProps) => {
     XLSX.writeFile(wb, `${category}.xlsx`);
   };
 
-  if (!data.length) return null;
+  // Filter out empty rows and rows before line 28
+  const validData = data.filter((row, index) => {
+    // Only process rows from index 27 (line 28) to 156 (line 157)
+    if (index < 27 || index > 156) return false;
+    // Check if the row has any non-empty values
+    return Object.values(row).some(value => value !== undefined && value !== null && value !== '');
+  });
+
+  if (!validData.length) return null;
 
   const columnHeaders = [
     'First Name',
@@ -55,7 +63,7 @@ const DataSection = ({ category, data }: DataSectionProps) => {
       <AccordionItem value={category}>
         <div className="flex items-center justify-between">
           <AccordionTrigger className="text-lg font-semibold">
-            {category} ({data.length} items)
+            {category} ({validData.length} items)
           </AccordionTrigger>
           <Button
             variant="outline"
@@ -83,7 +91,7 @@ const DataSection = ({ category, data }: DataSectionProps) => {
                 </tr>
               </thead>
               <tbody>
-                {data.map((row, index) => (
+                {validData.map((row, index) => (
                   <tr key={index} className="border-b hover:bg-gray-50">
                     {filterColumns(row).map((cell: any, cellIndex) => (
                       <td key={cellIndex} className="p-2">
