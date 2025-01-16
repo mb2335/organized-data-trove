@@ -23,16 +23,30 @@ const Index = () => {
   const [organizedData, setOrganizedData] = useState<{ [key: string]: any[] }>({});
 
   const handleFileProcessed = (data: any[]) => {
-    const categorized = CATEGORIES.reduce((acc, category) => {
-      acc[category] = data.filter(row => {
-        // Assuming there's a column that contains the category
-        // Adjust this logic based on your actual Excel structure
-        return Object.values(row).some(value => 
-          String(value).toLowerCase() === category.toLowerCase()
-        );
-      });
-      return acc;
-    }, {} as { [key: string]: any[] });
+    const categorized: { [key: string]: any[] } = {};
+    let currentCategory = '';
+    
+    // Initialize categories
+    CATEGORIES.forEach(category => {
+      categorized[category] = [];
+    });
+
+    // Process each row
+    data.forEach(row => {
+      // Check if this row contains a category
+      const categoryMatch = CATEGORIES.find(category => 
+        Object.values(row).some(value => 
+          String(value).trim().toUpperCase() === category.toUpperCase()
+        )
+      );
+
+      if (categoryMatch) {
+        currentCategory = categoryMatch;
+      } else if (currentCategory && Object.values(row).some(value => value)) {
+        // If we have a current category and the row isn't empty, add it to that category
+        categorized[currentCategory].push(row);
+      }
+    });
 
     setOrganizedData(categorized);
   };
