@@ -23,45 +23,29 @@ const Index = () => {
   const [organizedData, setOrganizedData] = useState<{ [key: string]: any[] }>({});
 
   const handleFileProcessed = (data: any[]) => {
+    // Filter rows between rows 28-146 and identify categories by black highlighting
     const relevantData = data.slice(27, 146);
     
     let currentCategory = '';
     const categorized: { [key: string]: any[] } = {};
     
-    relevantData.forEach((row) => {
-      const rowValues = Object.values(row);
-      const firstValue = String(rowValues[0] || '');
+    relevantData.forEach((row, index) => {
+      // Check if the row is a category header (has black highlighting)
+      const isCategory = row?.['!styles']?.fill?.fgColor?.rgb === '000000' || 
+                        CATEGORIES.includes(Object.values(row)[0]);
       
-      // Check if this row is a category header
-      if (CATEGORIES.includes(firstValue)) {
-        currentCategory = firstValue;
+      if (isCategory) {
+        // Set current category based on the first non-empty value in the row
+        currentCategory = Object.values(row).find(val => val) || '';
         if (!categorized[currentCategory]) {
           categorized[currentCategory] = [];
         }
       } else if (currentCategory) {
-        // Get values from correct columns (B, D, E)
-        const typeValue = String(row[1] || '').trim(); // Column B
-        const firstNameValue = String(row[3] || '').trim(); // Column D
-        const lastNameValue = String(row[4] || '').trim(); // Column E
-        
-        // Skip if all values are 'y' or empty
-        if (typeValue.toLowerCase() === 'y' && firstNameValue.toLowerCase() === 'y' && lastNameValue.toLowerCase() === 'y') {
-          return;
-        }
-
-        // Format the row data, preserving empty values and ignoring standalone 'y's
-        const formattedRow = {
-          'Type': typeValue.toLowerCase() === 'y' ? '' : typeValue,
-          'First Name': firstNameValue.toLowerCase() === 'y' ? '' : firstNameValue,
-          'Last Name': lastNameValue.toLowerCase() === 'y' ? '' : lastNameValue
-        };
-        
-        // Add the row to the current category
-        categorized[currentCategory].push(formattedRow);
+        // Add the row to the current category, preserving empty cells
+        categorized[currentCategory].push(row);
       }
     });
 
-    console.log('Categorized data:', categorized);
     setOrganizedData(categorized);
   };
 
