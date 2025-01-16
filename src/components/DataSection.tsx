@@ -22,50 +22,23 @@ const DataSection = ({ category, data }: DataSectionProps) => {
     XLSX.writeFile(wb, `${category}.xlsx`);
   };
 
-  // Filter out empty rows and rows before line 28
-  const validData = data.filter((row, index) => {
-    // Only process rows from index 27 (line 28) to 156 (line 157)
-    if (index < 27 || index > 156) return false;
-    // Check if the row has any non-empty values
-    return Object.values(row).some(value => value !== undefined && value !== null && value !== '');
-  });
-
-  if (!validData.length) return null;
-
-  const columnHeaders = [
-    'Category',
-    'First Name',
-    'Last Name',
-    'Company',
-    'Type',
-    'AC Area',
-    'Start',
-    'Notes',
-    'Email',
-    'Cel'
-  ];
+  if (!data.length) return null;
 
   const filterColumns = (row: any) => {
-    return [
-      category,
-      row['First Name'] || '',
-      row['Last Name'] || '',
-      row['Company'] || '',
-      row['Type'] || '',
-      row['AC Area'] || '',
-      row['Start'] || '',
-      row['Notes'] || '',
-      row['Email'] || '',
-      row['Cel'] || ''
-    ];
+    const values = Object.values(row);
+    // Only return columns E through P (indices 4 through 15)
+    return values.slice(4, 16);
   };
+
+  // Get headers from first row (columns E through P)
+  const headers = Object.values(data[0] || {}).slice(4, 16);
 
   return (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value={category}>
         <div className="flex items-center justify-between">
           <AccordionTrigger className="text-lg font-semibold">
-            {category} ({validData.length} items)
+            {category} ({data.length} items)
           </AccordionTrigger>
           <Button
             variant="outline"
@@ -85,15 +58,15 @@ const DataSection = ({ category, data }: DataSectionProps) => {
             <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  {columnHeaders.map((header, index) => (
+                  {headers.map((header, index) => (
                     <th key={index} className="p-2 text-left border-b bg-gray-50">
-                      {header}
+                      {String(header)}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {validData.map((row, index) => (
+                {data.map((row, index) => (
                   <tr key={index} className="border-b hover:bg-gray-50">
                     {filterColumns(row).map((cell: any, cellIndex) => (
                       <td key={cellIndex} className="p-2">
