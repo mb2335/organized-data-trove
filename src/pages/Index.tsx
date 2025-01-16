@@ -30,25 +30,24 @@ const Index = () => {
     
     relevantData.forEach((row) => {
       const rowValues = Object.values(row);
+      const firstValue = String(rowValues[0] || '');
       
       // Check if this row is a category header
-      if (CATEGORIES.includes(rowValues[0])) {
-        currentCategory = rowValues[0];
+      if (CATEGORIES.includes(firstValue)) {
+        currentCategory = firstValue;
         if (!categorized[currentCategory]) {
           categorized[currentCategory] = [];
         }
-      } else if (currentCategory && rowValues.length > 0) {
-        // Extract only the first three columns (Type, First Name, Last Name)
+      } else if (currentCategory) {
+        // Extract exactly three columns, preserving blank values
         const formattedRow = {
-          'Type': rowValues[0] || '',
-          'First Name': rowValues[1] || '',
-          'Last Name': rowValues[2] || ''
+          'Type': String(rowValues[0] || ''),
+          'First Name': String(rowValues[1] || ''),
+          'Last Name': String(rowValues[2] || '')
         };
         
-        // Only add rows that have at least one value
-        if (rowValues[0] || rowValues[1] || rowValues[2]) {
-          categorized[currentCategory].push(formattedRow);
-        }
+        // Add the row even if some values are blank
+        categorized[currentCategory].push(formattedRow);
       }
     });
 
