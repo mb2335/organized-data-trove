@@ -39,16 +39,24 @@ const Index = () => {
           categorized[currentCategory] = [];
         }
       } else if (currentCategory) {
-        // Get values from specific columns (B, D, E) - shifted 3 columns left from previous E, G, H
-        const type = String(row['__EMPTY_1'] || ''); // Column B (previously E)
-        const firstName = String(row['__EMPTY_3'] || ''); // Column D (previously G)
-        const lastName = String(row['__EMPTY_4'] || ''); // Column E (previously H)
+        // Check if the first value looks like a type (Alcohol/Entertainment, Full Service, Lodging, QSR)
+        const isType = /^(Alcohol\/Entertainment|Full Service|Lodging|QSR|ADD|Y)$/i.test(firstValue);
         
-        const formattedRow = {
-          'Type': type,
-          'First Name': firstName,
-          'Last Name': lastName
-        };
+        let formattedRow;
+        if (isType) {
+          formattedRow = {
+            'Type': String(rowValues[0] || ''),
+            'First Name': String(rowValues[1] || ''),
+            'Last Name': String(rowValues[2] || '')
+          };
+        } else {
+          // If it's not a type, treat it as a name
+          formattedRow = {
+            'Type': '',
+            'First Name': String(rowValues[0] || ''),
+            'Last Name': String(rowValues[1] || '')
+          };
+        }
         
         // Add the row even if some values are blank
         categorized[currentCategory].push(formattedRow);
