@@ -60,7 +60,7 @@ const DataSection = ({ category, data }: DataSectionProps) => {
                 <tr>
                   {headers.map((header, index) => (
                     <th key={index} className="p-2 text-left border-b bg-gray-50">
-                      {header}
+                      {String(header)}
                     </th>
                   ))}
                 </tr>
@@ -70,7 +70,7 @@ const DataSection = ({ category, data }: DataSectionProps) => {
                   <tr key={index} className="border-b hover:bg-gray-50">
                     {filterColumns(row).map((cell: any, cellIndex) => (
                       <td key={cellIndex} className="p-2">
-                        {cell}
+                        {String(cell)}
                       </td>
                     ))}
                   </tr>
