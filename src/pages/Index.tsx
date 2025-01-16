@@ -23,16 +23,28 @@ const Index = () => {
   const [organizedData, setOrganizedData] = useState<{ [key: string]: any[] }>({});
 
   const handleFileProcessed = (data: any[]) => {
-    const categorized = CATEGORIES.reduce((acc, category) => {
-      acc[category] = data.filter(row => {
-        // Assuming there's a column that contains the category
-        // Adjust this logic based on your actual Excel structure
-        return Object.values(row).some(value => 
-          String(value).toLowerCase() === category.toLowerCase()
-        );
-      });
-      return acc;
-    }, {} as { [key: string]: any[] });
+    // Filter rows between rows 28-146 and identify categories by black highlighting
+    const relevantData = data.slice(27, 146);
+    
+    let currentCategory = '';
+    const categorized: { [key: string]: any[] } = {};
+    
+    relevantData.forEach((row, index) => {
+      // Check if the row is a category header (has black highlighting)
+      const isCategory = row?.['!styles']?.fill?.fgColor?.rgb === '000000' || 
+                        CATEGORIES.includes(Object.values(row)[0]);
+      
+      if (isCategory) {
+        // Set current category based on the first non-empty value in the row
+        currentCategory = Object.values(row).find(val => val) || '';
+        if (!categorized[currentCategory]) {
+          categorized[currentCategory] = [];
+        }
+      } else if (currentCategory) {
+        // Add the row to the current category, preserving empty cells
+        categorized[currentCategory].push(row);
+      }
+    });
 
     setOrganizedData(categorized);
   };
