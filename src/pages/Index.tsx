@@ -23,29 +23,36 @@ const Index = () => {
   const [organizedData, setOrganizedData] = useState<{ [key: string]: any[] }>({});
 
   const handleFileProcessed = (data: any[]) => {
-    // Filter rows between rows 28-146 and identify categories by black highlighting
     const relevantData = data.slice(27, 146);
     
     let currentCategory = '';
     const categorized: { [key: string]: any[] } = {};
     
-    relevantData.forEach((row, index) => {
-      // Check if the row is a category header (has black highlighting)
-      const isCategory = row?.['!styles']?.fill?.fgColor?.rgb === '000000' || 
-                        CATEGORIES.includes(Object.values(row)[0]);
+    relevantData.forEach((row) => {
+      const rowValues = Object.values(row);
       
-      if (isCategory) {
-        // Set current category based on the first non-empty value in the row
-        currentCategory = Object.values(row).find(val => val) || '';
+      // Check if this row is a category header
+      if (CATEGORIES.includes(rowValues[0])) {
+        currentCategory = rowValues[0];
         if (!categorized[currentCategory]) {
           categorized[currentCategory] = [];
         }
-      } else if (currentCategory) {
-        // Add the row to the current category, preserving empty cells
-        categorized[currentCategory].push(row);
+      } else if (currentCategory && rowValues.length > 0) {
+        // Extract only the first three columns (Type, First Name, Last Name)
+        const formattedRow = {
+          'Type': rowValues[0] || '',
+          'First Name': rowValues[1] || '',
+          'Last Name': rowValues[2] || ''
+        };
+        
+        // Only add rows that have at least one value
+        if (rowValues[0] || rowValues[1] || rowValues[2]) {
+          categorized[currentCategory].push(formattedRow);
+        }
       }
     });
 
+    console.log('Categorized data:', categorized);
     setOrganizedData(categorized);
   };
 

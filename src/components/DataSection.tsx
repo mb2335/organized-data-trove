@@ -49,21 +49,17 @@ const DataSection = ({ category, data }: DataSectionProps) => {
             <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  {Object.keys(data[0] || {}).map((header) => (
-                    <th key={header} className="p-2 text-left border-b bg-gray-50">
-                      {header}
-                    </th>
-                  ))}
+                  <th className="p-2 text-left border-b bg-gray-50">Type</th>
+                  <th className="p-2 text-left border-b bg-gray-50">First Name</th>
+                  <th className="p-2 text-left border-b bg-gray-50">Last Name</th>
                 </tr>
               </thead>
               <tbody>
                 {data.map((row, index) => (
                   <tr key={index} className="border-b hover:bg-gray-50">
-                    {Object.values(row).map((cell: any, cellIndex) => (
-                      <td key={cellIndex} className="p-2">
-                        {cell}
-                      </td>
-                    ))}
+                    <td className="p-2">{row['Type']}</td>
+                    <td className="p-2">{row['First Name']}</td>
+                    <td className="p-2">{row['Last Name']}</td>
                   </tr>
                 ))}
               </tbody>
