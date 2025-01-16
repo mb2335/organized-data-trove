@@ -19,66 +19,33 @@ const CATEGORIES = [
   'Corporate Staff'
 ];
 
-interface ExcelRow {
-  [key: string]: any;
-  __rowNum__?: number;
-}
-
 const Index = () => {
-  const [organizedData, setOrganizedData] = useState<{ [key: string]: ExcelRow[] }>({});
+  const [organizedData, setOrganizedData] = useState<{ [key: string]: any[] }>({});
 
-  const handleFileProcessed = (data: ExcelRow[]) => {
-    console.log('Raw data:', data); // Debug log
-    
-    // Filter rows between rows 28-146
-    const relevantData = data.filter(row => {
-      const rowNum = row.__rowNum__;
-      return rowNum !== undefined && rowNum >= 27 && rowNum <= 145;
-    });
-    
-    console.log('Filtered data:', relevantData); // Debug log
+  const handleFileProcessed = (data: any[]) => {
+    // Filter rows between rows 28-146 and identify categories by black highlighting
+    const relevantData = data.slice(27, 146);
     
     let currentCategory = '';
-    const categorized: { [key: string]: ExcelRow[] } = {};
+    const categorized: { [key: string]: any[] } = {};
     
-    relevantData.forEach((row) => {
-      // Get only the type (column E), first name (column F), and last name (column G)
-      const filteredRow: ExcelRow = {};
-      Object.entries(row).forEach(([key, value]) => {
-        if (typeof key === 'string') {
-          const colIndex = key.charCodeAt(0) - 65; // Convert A=0, B=1, etc.
-          if (colIndex >= 4 && colIndex <= 6) { // Columns E, F, G
-            const columnName = colIndex === 4 ? 'Type' : 
-                             colIndex === 5 ? 'First Name' : 
-                             'Last Name';
-            filteredRow[columnName] = value;
-          }
-        }
-      });
-
-      // Check if the row contains a category
-      const rowValues = Object.values(row).map(value => 
-        String(value).trim()
-      );
+    relevantData.forEach((row, index) => {
+      // Check if the row is a category header (has black highlighting)
+      const isCategory = row?.['!styles']?.fill?.fgColor?.rgb === '000000' || 
+                        CATEGORIES.includes(Object.values(row)[0]);
       
-      const matchingCategory = CATEGORIES.find(category => 
-        rowValues.includes(category)
-      );
-
-      if (matchingCategory) {
-        currentCategory = matchingCategory;
+      if (isCategory) {
+        // Set current category based on the first non-empty value in the row
+        currentCategory = Object.values(row).find(val => val) || '';
         if (!categorized[currentCategory]) {
           categorized[currentCategory] = [];
         }
-      } else if (currentCategory && Object.keys(filteredRow).length > 0) {
-        // Only add rows that have at least one non-empty value
-        if (Object.values(filteredRow).some(value => value !== undefined && value !== '')) {
-          categorized[currentCategory].push(filteredRow);
-        }
+      } else if (currentCategory) {
+        // Add the row to the current category, preserving empty cells
+        categorized[currentCategory].push(row);
       }
     });
-    
-    console.log('Categorized data:', categorized); // Debug log
+
     setOrganizedData(categorized);
   };
 
