@@ -40,18 +40,17 @@ const DataSection = ({ category, data }: DataSectionProps) => {
 
   // Get the values for each row based on our column mapping
   const getRowValues = (row: any) => {
-    const values = Object.values(row);
     return [
-      values[4] || '', // Type
-      values[5] || '', // First Name
-      values[6] || '', // Last Name
-      values[7] || '', // Company
-      values[8] || '', // Business Type
-      values[9] || '', // Area
-      values[10] || '', // Start Date
-      values[11] || '', // Notes
-      values[12] || '', // Email
-      values[13] || '', // Cell
+      row['Add/Still New'] || '', // Type
+      row['Replace/Open'] || '', // First Name
+      row["There's an issue let's discuss"] || '', // Last Name
+      row['__EMPTY_4'] || '', // Company
+      row['__EMPTY_5'] || '', // Business Type
+      row['__EMPTY_6'] || '', // Area
+      row['__EMPTY_7'] ? new Date((row['__EMPTY_7'] - 25569) * 86400 * 1000).toLocaleDateString() : '', // Start Date
+      row['__EMPTY_8'] || '', // Notes
+      row['__EMPTY_9'] || '', // Email
+      row['__EMPTY_10'] || '', // Cell
     ];
   };
 
