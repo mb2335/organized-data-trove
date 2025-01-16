@@ -28,6 +28,7 @@ const Index = () => {
   const handleFileProcessed = (data: any[]) => {
     const categorized: { [key: string]: any[] } = {};
     let currentCategory = '';
+    let isProcessingCategory = false;
     
     // Initialize categories
     CATEGORIES.forEach(category => {
@@ -35,7 +36,7 @@ const Index = () => {
     });
 
     // Process each row
-    data.forEach(row => {
+    data.forEach((row, index) => {
       // Check if this row contains a category
       const categoryMatch = CATEGORIES.find(category => 
         Object.values(row).some(value => 
@@ -45,17 +46,28 @@ const Index = () => {
 
       if (categoryMatch) {
         currentCategory = categoryMatch;
-      } else if (currentCategory) {
-        // For NC category, only include rows with allowed names
-        if (currentCategory === 'NC') {
-          const firstName = row['Replace/Open'];
-          if (NC_ALLOWED_NAMES.includes(firstName)) {
+        isProcessingCategory = true;
+      } else if (isProcessingCategory) {
+        // Check if we've hit the next category header or end of data
+        const isNextCategoryHeader = CATEGORIES.some(category =>
+          Object.values(row).some(value =>
+            String(value).trim().toUpperCase() === category.toUpperCase()
+          )
+        );
+
+        if (isNextCategoryHeader) {
+          isProcessingCategory = false;
+        } else {
+          // For NC category, only include rows with allowed names
+          if (currentCategory === 'NC') {
+            const firstName = row['Replace/Open'];
+            if (NC_ALLOWED_NAMES.includes(firstName)) {
+              categorized[currentCategory].push(row);
+            }
+          } else {
+            // For other categories, include all rows within the category section
             categorized[currentCategory].push(row);
           }
-        } else {
-          // For other categories, include all rows, even if they're blank
-          // As long as we're within a category section
-          categorized[currentCategory].push(row);
         }
       }
     });
