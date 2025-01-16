@@ -93,8 +93,9 @@ const DataSection = ({ category, data }: DataSectionProps) => {
               </thead>
               <tbody>
                 {data.map((row, index) => {
-                  // Determine if row should be faded
-                  const shouldFade = row.Type && !row['First Name'] && !row['Last Name'] || row.Type === 'ADD';
+                  // Determine if row should be faded based on First Name
+                  const shouldFade = !row['First Name'] || 
+                    ['Alcohol/Entertainment', 'Full Service', 'Lodging', 'Y', 'y'].includes(row['First Name']);
                   
                   return (
                     <tr 
