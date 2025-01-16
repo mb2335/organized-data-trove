@@ -19,8 +19,6 @@ const CATEGORIES = [
   'Corporate Staff'
 ];
 
-const NC_ALLOWED_NAMES = ['Allen', 'Jenny', 'Glenda', 'Paul', 'Peter', 'Kristen'];
-
 const Index = () => {
   const [organizedData, setOrganizedData] = useState<{ [key: string]: any[] }>({});
 
@@ -34,7 +32,7 @@ const Index = () => {
     });
 
     // Process each row
-    data.forEach((row, index) => {
+    data.forEach(row => {
       // Check if this row contains a category
       const categoryMatch = CATEGORIES.find(category => 
         Object.values(row).some(value => 
@@ -44,29 +42,12 @@ const Index = () => {
 
       if (categoryMatch) {
         currentCategory = categoryMatch;
-        console.log(`Found category: ${currentCategory}`);
       } else if (currentCategory && Object.values(row).some(value => value)) {
-        // If we have a current category and the row isn't empty
-        if (currentCategory === 'NC') {
-          // For NC category, only include rows where the first name matches our allowed list
-          const rowValues = Object.values(row);
-          console.log('NC row:', row);
-          console.log('Row values:', rowValues);
-          const firstName = String(rowValues[5] || '').trim(); // Index 5 contains First Name
-          console.log('First Name found:', firstName);
-          console.log('Is in allowed list:', NC_ALLOWED_NAMES.includes(firstName));
-          
-          if (NC_ALLOWED_NAMES.includes(firstName)) {
-            categorized[currentCategory].push(row);
-          }
-        } else {
-          // For other categories, include all non-empty rows
-          categorized[currentCategory].push(row);
-        }
+        // If we have a current category and the row isn't empty, add it to that category
+        categorized[currentCategory].push(row);
       }
     });
 
-    console.log('Final categorized data:', categorized);
     setOrganizedData(categorized);
   };
 
