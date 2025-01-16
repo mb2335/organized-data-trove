@@ -28,11 +28,15 @@ const Index = () => {
   const [organizedData, setOrganizedData] = useState<{ [key: string]: ExcelRow[] }>({});
 
   const handleFileProcessed = (data: ExcelRow[]) => {
+    console.log('Raw data:', data); // Debug log
+    
     // Filter rows between rows 28-146
     const relevantData = data.filter(row => {
       const rowNum = row.__rowNum__;
       return rowNum !== undefined && rowNum >= 27 && rowNum <= 145;
     });
+    
+    console.log('Filtered data:', relevantData); // Debug log
     
     let currentCategory = '';
     const categorized: { [key: string]: ExcelRow[] } = {};
@@ -41,40 +45,40 @@ const Index = () => {
       // Get only the type (column E), first name (column F), and last name (column G)
       const filteredRow: ExcelRow = {};
       Object.entries(row).forEach(([key, value]) => {
-        const colIndex = key.charCodeAt(0) - 65; // Convert A=0, B=1, etc.
-        if (colIndex >= 4 && colIndex <= 6) { // Columns E, F, G
-          const columnName = colIndex === 4 ? 'Type' : 
-                           colIndex === 5 ? 'First Name' : 
-                           'Last Name';
-          filteredRow[columnName] = value;
+        if (typeof key === 'string') {
+          const colIndex = key.charCodeAt(0) - 65; // Convert A=0, B=1, etc.
+          if (colIndex >= 4 && colIndex <= 6) { // Columns E, F, G
+            const columnName = colIndex === 4 ? 'Type' : 
+                             colIndex === 5 ? 'First Name' : 
+                             'Last Name';
+            filteredRow[columnName] = value;
+          }
         }
       });
 
-      // Check if the row is a category header
-      const isCategory = CATEGORIES.some(category => 
-        Object.values(row).some(value => 
-          String(value).trim() === category
-        )
+      // Check if the row contains a category
+      const rowValues = Object.values(row).map(value => 
+        String(value).trim()
       );
       
-      if (isCategory) {
-        // Set current category based on the matching category
-        currentCategory = CATEGORIES.find(category => 
-          Object.values(row).some(value => 
-            String(value).trim() === category
-          )
-        ) || '';
+      const matchingCategory = CATEGORIES.find(category => 
+        rowValues.includes(category)
+      );
+
+      if (matchingCategory) {
+        currentCategory = matchingCategory;
         if (!categorized[currentCategory]) {
           categorized[currentCategory] = [];
         }
       } else if (currentCategory && Object.keys(filteredRow).length > 0) {
-        // Add the filtered row to the current category if it has any data
+        // Only add rows that have at least one non-empty value
         if (Object.values(filteredRow).some(value => value !== undefined && value !== '')) {
           categorized[currentCategory].push(filteredRow);
         }
       }
     });
-
+    
+    console.log('Categorized data:', categorized); // Debug log
     setOrganizedData(categorized);
   };
 
