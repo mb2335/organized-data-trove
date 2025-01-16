@@ -19,58 +19,20 @@ const CATEGORIES = [
   'Corporate Staff'
 ];
 
-// Define allowed names for NC category
-const NC_ALLOWED_NAMES = ['Allen', 'Jenny', 'Glenda', 'Paul', 'Peter', 'Kristen'];
-
 const Index = () => {
   const [organizedData, setOrganizedData] = useState<{ [key: string]: any[] }>({});
 
   const handleFileProcessed = (data: any[]) => {
-    const categorized: { [key: string]: any[] } = {};
-    let currentCategory = '';
-    let isProcessingCategory = false;
-    
-    // Initialize categories
-    CATEGORIES.forEach(category => {
-      categorized[category] = [];
-    });
-
-    // Process each row
-    data.forEach((row, index) => {
-      // Check if this row contains a category
-      const categoryMatch = CATEGORIES.find(category => 
-        Object.values(row).some(value => 
-          String(value).trim().toUpperCase() === category.toUpperCase()
-        )
-      );
-
-      if (categoryMatch) {
-        currentCategory = categoryMatch;
-        isProcessingCategory = true;
-      } else if (isProcessingCategory) {
-        // Check if we've hit the next category header or end of data
-        const isNextCategoryHeader = CATEGORIES.some(category =>
-          Object.values(row).some(value =>
-            String(value).trim().toUpperCase() === category.toUpperCase()
-          )
+    const categorized = CATEGORIES.reduce((acc, category) => {
+      acc[category] = data.filter(row => {
+        // Assuming there's a column that contains the category
+        // Adjust this logic based on your actual Excel structure
+        return Object.values(row).some(value => 
+          String(value).toLowerCase() === category.toLowerCase()
         );
-
-        if (isNextCategoryHeader) {
-          isProcessingCategory = false;
-        } else {
-          // For NC category, only include rows with allowed names
-          if (currentCategory === 'NC') {
-            const firstName = row['Replace/Open'];
-            if (NC_ALLOWED_NAMES.includes(firstName)) {
-              categorized[currentCategory].push(row);
-            }
-          } else {
-            // For other categories, include all rows within the category section
-            categorized[currentCategory].push(row);
-          }
-        }
-      }
-    });
+      });
+      return acc;
+    }, {} as { [key: string]: any[] });
 
     setOrganizedData(categorized);
   };
