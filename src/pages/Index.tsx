@@ -39,26 +39,24 @@ const Index = () => {
           categorized[currentCategory] = [];
         }
       } else if (currentCategory) {
-        // Check if the first value looks like a type (Alcohol/Entertainment, Full Service, Lodging, QSR)
-        const isType = /^(Alcohol\/Entertainment|Full Service|Lodging|QSR|ADD|Y)$/i.test(firstValue);
+        // Get values from correct columns (B, D, E)
+        const typeValue = String(row[1] || '').trim(); // Column B
+        const firstNameValue = String(row[3] || '').trim(); // Column D
+        const lastNameValue = String(row[4] || '').trim(); // Column E
         
-        let formattedRow;
-        if (isType) {
-          formattedRow = {
-            'Type': String(rowValues[0] || ''),
-            'First Name': String(rowValues[1] || ''),
-            'Last Name': String(rowValues[2] || '')
-          };
-        } else {
-          // If it's not a type, treat it as a name
-          formattedRow = {
-            'Type': '',
-            'First Name': String(rowValues[0] || ''),
-            'Last Name': String(rowValues[1] || '')
-          };
+        // Skip if all values are 'y' or empty
+        if (typeValue.toLowerCase() === 'y' && firstNameValue.toLowerCase() === 'y' && lastNameValue.toLowerCase() === 'y') {
+          return;
         }
+
+        // Format the row data, preserving empty values and ignoring standalone 'y's
+        const formattedRow = {
+          'Type': typeValue.toLowerCase() === 'y' ? '' : typeValue,
+          'First Name': firstNameValue.toLowerCase() === 'y' ? '' : firstNameValue,
+          'Last Name': lastNameValue.toLowerCase() === 'y' ? '' : lastNameValue
+        };
         
-        // Add the row even if some values are blank
+        // Add the row to the current category
         categorized[currentCategory].push(formattedRow);
       }
     });
