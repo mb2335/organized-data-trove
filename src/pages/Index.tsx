@@ -19,24 +19,36 @@ const CATEGORIES = [
   'Corporate Staff'
 ];
 
-const Index = () => {
-  const [organizedData, setOrganizedData] = useState<{ [key: string]: any[] }>({});
+interface ExcelRow {
+  [key: string]: string | number | null;
+  '!styles'?: {
+    fill?: {
+      fgColor?: {
+        rgb?: string;
+      };
+    };
+  };
+}
 
-  const handleFileProcessed = (data: any[]) => {
+const Index = () => {
+  const [organizedData, setOrganizedData] = useState<{ [key: string]: ExcelRow[] }>({});
+
+  const handleFileProcessed = (data: ExcelRow[]) => {
     // Filter rows between rows 28-146 and identify categories by black highlighting
     const relevantData = data.slice(27, 146);
     
     let currentCategory = '';
-    const categorized: { [key: string]: any[] } = {};
+    const categorized: { [key: string]: ExcelRow[] } = {};
     
-    relevantData.forEach((row, index) => {
+    relevantData.forEach((row) => {
       // Check if the row is a category header (has black highlighting)
       const isCategory = row?.['!styles']?.fill?.fgColor?.rgb === '000000' || 
-                        CATEGORIES.includes(Object.values(row)[0]);
+                        CATEGORIES.includes(String(Object.values(row)[0]));
       
       if (isCategory) {
         // Set current category based on the first non-empty value in the row
-        currentCategory = Object.values(row).find(val => val) || '';
+        const categoryValue = Object.values(row).find(val => val) || '';
+        currentCategory = String(categoryValue);
         if (!categorized[currentCategory]) {
           categorized[currentCategory] = [];
         }
