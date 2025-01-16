@@ -33,6 +33,7 @@ const DataSection = ({ category, data }: DataSectionProps) => {
   if (!validData.length) return null;
 
   const columnHeaders = [
+    'Category',
     'First Name',
     'Last Name',
     'Company',
@@ -46,6 +47,7 @@ const DataSection = ({ category, data }: DataSectionProps) => {
 
   const filterColumns = (row: any) => {
     return [
+      category,
       row['First Name'] || '',
       row['Last Name'] || '',
       row['Company'] || '',
