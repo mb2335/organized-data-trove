@@ -39,10 +39,10 @@ const Index = () => {
           categorized[currentCategory] = [];
         }
       } else if (currentCategory) {
-        // Get values from specific columns (E, G, H)
-        const type = String(row['__EMPTY_4'] || ''); // Column E
-        const firstName = String(row['__EMPTY_6'] || ''); // Column G
-        const lastName = String(row['__EMPTY_7'] || ''); // Column H
+        // Get values from specific columns (B, D, E) - shifted 3 columns left from previous E, G, H
+        const type = String(row['__EMPTY_1'] || ''); // Column B (previously E)
+        const firstName = String(row['__EMPTY_3'] || ''); // Column D (previously G)
+        const lastName = String(row['__EMPTY_4'] || ''); // Column E (previously H)
         
         const formattedRow = {
           'Type': type,
