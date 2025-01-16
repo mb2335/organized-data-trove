@@ -32,7 +32,7 @@ const Index = () => {
     });
 
     // Process each row
-    data.forEach(row => {
+    data.forEach((row, index) => {
       // Check if this row contains a category
       const categoryMatch = CATEGORIES.find(category => 
         Object.values(row).some(value => 
