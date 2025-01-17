@@ -23,7 +23,7 @@ const Index = () => {
   const [organizedData, setOrganizedData] = useState<{ [key: string]: any[] }>({});
 
   const handleFileProcessed = (data: any[]) => {
-    const relevantData = data.slice(27, 146);
+    const relevantData = data.slice(26, 146);
     
     let currentCategory = '';
     const categorized: { [key: string]: any[] } = {};
